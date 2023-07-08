@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, BaseEntity, JoinColumn } from 'typeorm';
 import { Account } from './Account.Entity';
 
 @Entity()
-export class Transaction {
+export class Transaction extends BaseEntity {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
@@ -15,6 +15,6 @@ export class Transaction {
     @Column()
     amount: number;
 
-    @Column()
+    @CreateDateColumn()
     createdDate: Date;
 }

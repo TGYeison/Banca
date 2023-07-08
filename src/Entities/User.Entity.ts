@@ -1,11 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BaseEntity, JoinColumn, JoinTable } from 'typeorm';
 
 import { Account } from './Account.Entity';
 
 @Entity()
-export class User {
+export class User extends BaseEntity {
     @PrimaryGeneratedColumn("uuid")
     id: string;
+
+    @Column({unique: true})
+    userName: string;
 
     @Column()
     name: string;
@@ -14,14 +17,15 @@ export class User {
     lastName: string;
 
     @Column()
-    docID: number;
+    docID: string;
 
     @Column()
-    phone: number;
+    phone: string;
 
     @Column()
     password: string;
 
-    @OneToMany(()=> Account, (account: Account) => account.userId)
+    @JoinTable()
+    @OneToMany(()=> Account, (account: Account) => account.user, { cascade: true})
     accounts: Account[];
 }

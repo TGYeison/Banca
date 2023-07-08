@@ -1,10 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany, ManyToOne} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, BaseEntity} from 'typeorm';
 import { TypeAccount } from './TypeAccount.Entity';
-import { Transaction } from './Transacction.Entity';
+import { Transaction } from './Transaction.Entity';
 import { User } from './User.Entity';
 
 @Entity()
-export class Account {
+export class Account extends BaseEntity {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
@@ -12,18 +12,17 @@ export class Account {
     accountId: string;
 
     @ManyToOne(()=> TypeAccount, (type: TypeAccount) => type.id)
-    @JoinColumn()
     typeAccount: TypeAccount;
 
     @Column()
     balance: number;
 
     @ManyToOne(()=> User, (user: User) => user.accounts)
-    userId: User;
+    user: User;
 
-    @OneToMany(() => Transaction, (transaction: Transaction) => transaction.accountRoot)
+    @OneToMany(() => Transaction, (transaction: Transaction) => transaction.accountRoot, { cascade: true })
     outTransactions: Transaction[];
 
-    @OneToMany(() => Transaction, (transaction: Transaction) => transaction.accountDestination)
+    @OneToMany(() => Transaction, (transaction: Transaction) => transaction.accountDestination, {cascade: true})
     inputTransations: Transaction[];
 }
