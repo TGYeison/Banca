@@ -24,14 +24,16 @@ export class TransactionServices {
 
     public async GetByReferent (id: string) {
         try {
+            console.log("INIT", id);
             const transacctions = await this.transactionRepository.find({ 
-                where: { accountRoot: {id}, accountDestination: {id}}
+                where: [ {accountRoot: {id}}, {accountDestination: {id}}],
+                relations: {
+                    accountDestination: true,
+                    accountRoot: true
+                }
             });
-                // .createQueryBuilder()
-                // .where('accountRoot = :id', {id})
-                // .orWhere('accountDestination = :id', {id})
-                // .execute();
             
+            console.log("GET", transacctions);
             return transacctions;
         } catch (error) {
             return  {status: 503, message: (error as Error).message};

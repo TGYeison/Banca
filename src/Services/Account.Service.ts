@@ -33,7 +33,7 @@ export class AccountServices {
     }
 
     async GetById (id: string) {
-        const account = await this.acountRepository.findOneBy ({ id });
+        const account = await this.acountRepository.findOneBy({ accountId: id });
 
         return account;
     }

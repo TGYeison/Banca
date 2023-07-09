@@ -45,7 +45,7 @@ export default class TransactionController {
     }
 
     routes () {
-        this.router.post('/transacction', (req: Request, res: Response) => this.Register(req, res));
+        this.router.post('/', (req: Request, res: Response) => this.Register(req, res));
 
         return this.router;
     }

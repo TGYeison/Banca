@@ -8,7 +8,7 @@ export class Account extends BaseEntity {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
-    @Column()
+    @Column({ unique: true })
     accountId: string;
 
     @ManyToOne(()=> TypeAccount, (type: TypeAccount) => type.id)

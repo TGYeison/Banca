@@ -1,12 +1,15 @@
 import { Response, Request, Router } from "express";
 import { UserServices } from "../Services/User.Service";
+import AuthServices from "../Services/Auth.Service";
 
 export default class UserController {
     protected router: Router;
     protected userServices: UserServices;
+    protected authServices: AuthServices;
 
-    constructor(UserServices: UserServices) {
+    constructor(UserServices: UserServices, AuthServices: AuthServices) {
         this.userServices = UserServices;
+        this.authServices = AuthServices;
         this.router = new (Router as any)();
     }
 
@@ -17,8 +20,12 @@ export default class UserController {
             return res.status(409).json({message: 'Invalid date user registration'});
 
 
-        const user = await this.userServices.Create(body);
-        res.status(201).json(user);
+        const user:any = await this.userServices.Create(body);
+        if(!user?.userName) 
+            return res.status(403).json({message: 'Cannot create user'});
+        
+        const token = await this.authServices.Generate(user.userName);
+        res.status(201).json({token: token});
     }
 
     async LogIn (req: Request, res: Response) {
@@ -31,7 +38,8 @@ export default class UserController {
         if(authenticateCredentials?.status)
             return res.status(authenticateCredentials?.status).json({message: authenticateCredentials?.message});
         
-        res.status(200).json({message: 'Authentication successful'});
+        const token = await this.authServices.Generate(body.userName);
+        res.status(200).json({token: token});
     }
 
     routes () {

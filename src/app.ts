@@ -1,10 +1,13 @@
-import express from 'express';
+import express, { Response, Request, NextFunction } from 'express';
 import { json, urlencoded } from 'body-parser';
 import morgan from 'morgan';
 import cors from 'cors';
 import { AppDataSource } from './Config/data-source';
 
 import CryptoServices from './Services/Crypto.Service';
+import AuthServices from './Services/Auth.Service';
+
+import AuthorizationMiddleware from './Middleware/Authorization';
 
 import { TypeAccount } from './Entities/TypeAccount.Entity';
 import { TypeAccountServices } from './Services/TypeAccount.Service';
@@ -12,7 +15,6 @@ import { TypeAccountServices } from './Services/TypeAccount.Service';
 import { Transaction } from './Entities/Transaction.Entity';
 import { TransactionServices } from './Services/Transaction.Service';
 import TransactionController from './Controllers/Transactions.Controller';
-
 
 import { Account } from './Entities/Account.Entity';
 import { AccountServices } from './Services/Account.Service';
@@ -31,6 +33,8 @@ app.use(json());
 app.use(urlencoded({ extended: false}));
 
 const cryptoService = new CryptoServices(); 
+const authService = new AuthServices();
+const authorizationMiddleware = new AuthorizationMiddleware(authService);
 
 const typeAccountRepository = AppDataSource.getRepository(TypeAccount);
 const userRepository = AppDataSource.getRepository(User);
@@ -42,8 +46,10 @@ const userService = new UserServices(userRepository, cryptoService);
 const accountService = new AccountServices(accountRepository);
 const transactionService = new TransactionServices(transactionRepository);
 
-app.use(new UserController(userService).routes());
-app.use(new AccountController(accountService, userService, typeAccountService).routes());
-app.use(new TransactionController(transactionService, accountService).routes());
+app.use('/user', new UserController(userService, authService).routes());
+
+app.use(authorizationMiddleware.authenticationToken);
+app.use('/account', new AccountController(accountService, userService, typeAccountService, authService, transactionService).routes());
+app.use('/transaction', new TransactionController(transactionService, accountService).routes());
 
 export default app;
